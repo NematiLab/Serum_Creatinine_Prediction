@@ -22,13 +22,9 @@ tf.random.set_seed(42)
 
 num_features = 241
 num_hours = 24
-
-# print(model.summary())
                 
 num_epochs = 140
 batch_size = 800
-
-# early_stopping = EarlyStopping(monitor = 'val_loss', patience = 5)
 
 mae_train =[]
 rmse_train =[]
@@ -40,7 +36,7 @@ unst_rmse_train =[]
 unst_mae_test=[]
 unst_rmse_test=[]
 
-for fold in range(1,10):
+for fold in range(1,11):
     
     print(fold)
     BaseDir=f'D:/Kidney_Project/Model_input_data/kFold_CV/fold{fold}/' 
@@ -107,13 +103,13 @@ for fold in range(1,10):
                          batch_size=batch_size, callbacks=[early_stopping, checkpoint_callback], validation_data=(test_X_cleaned, normalized_ytest))
     
     
-    best_model = Model(inputs=input_layer, outputs=output_layer)  # Recreate your model
+    best_model = Model(inputs=input_layer, outputs=output_layer)  # Recreating the model
     
     best_model.load_weights(checkpoint_path) 
     
     best_model.compile(loss='mean_squared_error', optimizer=optimizer1, metrics=['mae'])
     
-    filepath = f'C:/Users/gghanbari/Downloads/Kidney_project_codes_v0/Final_model_kFolds_new1/Final_model_fold{fold}.keras'
+    filepath = f'C:/Users/gghanbari/Downloads/Kidney_project_codes_v0/Final_model_kFolds/Final_model_fold{fold}.keras'
     
     tf.keras.saving.save_model(best_model, filepath, overwrite=True, save_format='keras')
     
@@ -184,7 +180,7 @@ for fold in range(1,10):
     resolution_value = 600
     plt.show()
     
-    # =================   Physical units of errors:  
+    # =================   Physical units of errors ====================:  
     errors_train = train_predictions_org - train_Y_cleaned
     abs_error_tr= np.abs(errors_train)
     
@@ -200,7 +196,7 @@ for fold in range(1,10):
     # print(f'\nMAE:\nTrain error: {mae_train:.2f}  \nTest: {mae_test:.4f}')
     # print(f'\nRMSE:\nTrain : {rmse_train:.2f}   \nTest: {rmse_test:.4f}')
     
-    # ----- Unstable cases
+    # ============== Unstable cases =============================
     
     unstCr_train_X = np.load(BaseDir + 'unstSCr_train_X.npy')
     unstCr_train_Y = np.load(BaseDir + 'unstSCr_train_Y.npy')
