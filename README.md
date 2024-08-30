@@ -2,7 +2,7 @@
 This repo includes codes for the paper "Development and Validation of a Deep Learning Algorithm for the Prediction of Serum Creatinine in Critically Ill Patients"
 
 
-### Multi-Head Attention Model for Creatinine Prediction
+## Multi-Head Attention Model for Creatinine Prediction
 
 # Purpose:
 This code implements a multi-head attention-based model for predicting Serum Creatinine levels in patients. The model is trained and evaluated using a k-fold cross-validation strategy.
