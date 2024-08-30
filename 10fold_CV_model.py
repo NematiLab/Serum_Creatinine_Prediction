@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 np.random.seed(12345*4)
 tf.random.set_seed(42)
 
-num_features = 241 # no tslm features
+num_features = 241
 num_hours = 24
 
 # print(model.summary())
@@ -34,23 +34,16 @@ mae_train =[]
 rmse_train =[]
 mae_test=[]
 rmse_test=[]
-percentage_within_30_train =[]
-percentage_within_30_test=[]
 
 unst_mae_train =[]
 unst_rmse_train =[]
 unst_mae_test=[]
 unst_rmse_test=[]
-percentage_within_30_unstable_train=[]
-percentage_within_30_unstable_test=[]
-
-# fold = 1
 
 for fold in range(1,10):
     
     print(fold)
     BaseDir=f'D:/Kidney_Project/Model_input_data/kFold_CV/fold{fold}/' 
-    # BaseDir = 'C:/Users/gghanbari/Documents/creatinine_output/model_input_fold10/Not_normalized/'
     
     train_X= np.load(BaseDir + 'train_Daily_data_input_Xnorm.npy')
     test_X= np.load(BaseDir + 'test_Daily_data_input_Xnorm.npy')
@@ -80,7 +73,6 @@ for fold in range(1,10):
     input_layer = Input(shape=(num_hours, num_features))
 
     attention_output = MultiHeadAttention(num_heads=2, key_dim=128)(input_layer, input_layer)
-    #return_attention_scores=True
     layer_norm = LayerNormalization(epsilon=1e-6)(attention_output + input_layer)
 
     # Flatten the output of the final attention layer
@@ -208,22 +200,6 @@ for fold in range(1,10):
     # print(f'\nMAE:\nTrain error: {mae_train:.2f}  \nTest: {mae_test:.4f}')
     # print(f'\nRMSE:\nTrain : {rmse_train:.2f}   \nTest: {rmse_test:.4f}')
     
-    
-    def within_30_percent(true_value, predicted_value):
-        return abs(true_value - predicted_value) <= 0.3 * true_value
-    
-    # Use the function to check for each prediction
-    within_30_percent_array_train = np.vectorize(within_30_percent)(train_Y_cleaned, train_predictions_org)
-    percentage_within_30_train.append((np.sum(within_30_percent_array_train) / len(train_Y_cleaned))*100)
-    
-    # print(f"\nThe percentage of train data predictions within 30% of true SCr values: {percentage_within_30_train:.2f}%")
-    
-    # ----- For test data set ---------
-    within_30_percent_array_test = np.vectorize(within_30_percent)(test_Y_cleaned, test_predictions_org)
-    percentage_within_30_test.append((np.sum(within_30_percent_array_test) / len(test_Y_cleaned)) * 100)
-    # print(f"\nThe percentage of test data predictions within 30% of true SCr values: {percentage_within_30_test:.2f}%")
-    
-    
     # ----- Unstable cases
     
     unstCr_train_X = np.load(BaseDir + 'unstSCr_train_X.npy')
@@ -242,17 +218,8 @@ for fold in range(1,10):
     
     unst_test_predictions_org= unst_test_predictions*max_ytrain
     
-    within_30_percent_arr_unstable_test = np.vectorize(within_30_percent)(unstCr_test_Y, unst_test_predictions_org)
-    percentage_within_30_unstable_test.append((np.sum(within_30_percent_arr_unstable_test) / len(unstCr_test_Y)) * 100)
-    
-    within_30_percent_arr_unstable_train = np.vectorize(within_30_percent)(unstCr_train_Y, unst_train_predictions_org)
-    percentage_within_30_unstable_train.append((np.sum(within_30_percent_arr_unstable_train) / len(unstCr_train_Y)) * 100)
-    
-    # print(f"\n% unstable TRAIN predictions within 30% of true SCr: {percentage_within_30_unstable_train:.1f}%")
-    # print(f"\n% unstable TEST predictions within 30% of true SCr: {percentage_within_30_unstable_test:.1f}%")
-    
-    
     # ===== MAE and RMSE for unstable days ======    
+  
     unst_errors_train = unstCr_train_Y - unst_train_predictions_org
     unst_abs_error_train= np.abs(unst_errors_train)
     
